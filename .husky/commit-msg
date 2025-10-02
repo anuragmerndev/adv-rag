@@ -1,0 +1,2 @@
+echo "[Husky] Running commit lint..."
+npm run lint:commit
