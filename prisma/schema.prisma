@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
     provider = "prisma-client-js"
 }
@@ -13,6 +7,34 @@ datasource db {
     url = env("DATABASE_URL")
 }
   
+model Document {
+  id    String @id @default(cuid())
+  name  String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  chunks DocumentChunk[]
+  is_deleted Boolean @default(false)
+}
+
+model DocumentChunk {
+  id      String                 @id @default(cuid())
+  doc_id   String
+  content String
+  embedding  Unsupported("vector")
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  document Document @relation(fields: [doc_id], references: [id])
+}
+
+model QueryLog {
+  id          String   @id @default(uuid())
+  query       String
+  embedding   Unsupported("vector")
+  response    String
+  createdAt   DateTime @default(now())
+}
+
 model User {
     id       String @id @default (uuid())
     name     String

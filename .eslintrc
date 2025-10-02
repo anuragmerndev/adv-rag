@@ -1,1 +1,179 @@
-{"parser":"@typescript-eslint/parser","parserOptions":{"project":"tsconfig.json","sourceType":"module"},"extends":["eslint:recommended","plugin:prettier/recommended","plugin:sonarjs/recommended","plugin:import/recommended","plugin:import/typescript","plugin:@typescript-eslint/eslint-recommended","plugin:@typescript-eslint/recommended","plugin:import/recommended","plugin:import/typescript"],"root":true,"env":{"node":true,"jest":true,"es6":true},"ignorePatterns":[".eslintrc.js"],"rules":{"@typescript-eslint/interface-name-prefix":"off","@typescript-eslint/explicit-function-return-type":"off","@typescript-eslint/explicit-module-boundary-types":"off","@typescript-eslint/no-explicit-any":"off","@typescript-eslint/no-unused-vars":["error",{"argsIgnorePattern":"^_"}],"no-console":"off","quotes":["error","single"],"semi":["error","always"],"object-curly-spacing":"off","indent":["error",4],"new-cap":"off","max-len":["error",{"code":90,"comments":120}],"global-require":"error","handle-callback-err":["error","^(err|error)$"],"no-buffer-constructor":"error","no-mixed-requires":["error",{"grouping":true,"allowCall":true}],"no-path-concat":"error","import/extensions":"off","import/prefer-default-export":"off","import/no-default-export":"error","import/no-extraneous-dependencies":["error",{"devDependencies":true}],"prettier/prettier":["error",{"endOfLine":"auto"}],"require-jsdoc":"off","linebreak-style":"off","import/no-unresolved":"error","import/order":["error",{"groups":["builtin","external","internal","sibling","parent","index","unknown"],"pathGroups":[{"pattern":"@db/*","group":"internal","position":"before"},{"pattern":"@middlewares/*","group":"internal","position":"before"},{"pattern":"@validators/*","group":"internal","position":"before"},{"pattern":"@services/*","group":"internal","position":"after"},{"pattern":"@controller/*","group":"internal","position":"after"},{"pattern":"@routes/*","group":"internal","position":"after"},{"pattern":"@utils/*","group":"internal","position":"after"},{"pattern":"@src/*","group":"internal","position":"after"}],"pathGroupsExcludedImportTypes":["builtin"],"distinctGroup":true,"newlines-between":"always","alphabetize":{"order":"asc","caseInsensitive":true}}]},"plugins":["@typescript-eslint/eslint-plugin","eslint-plugin-prettier","prettier","import"],"settings":{"import/resolver":{"node":{"extensions":[".js",".jsx",".ts",".tsx"]},"typescript":{"project":"./tsconfig.json"}}}}
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "tsconfig.json",
+        "sourceType": "module"
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:prettier/recommended",
+        "plugin:sonarjs/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:import/recommended",
+        "plugin:import/typescript"
+    ],
+    "root": true,
+    "env": {
+        "node": true,
+        "jest": true,
+        "es6": true
+    },
+    "ignorePatterns": [
+        ".eslintrc.js"
+    ],
+    "rules": {
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": [
+            "error",
+            {
+                "argsIgnorePattern": "^_"
+            }
+        ],
+        "no-console": "off",
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "object-curly-spacing": "off",
+        "indent": [
+            "error",
+            4
+        ],
+        "new-cap": "off",
+        "max-len": [
+            "error",
+            {
+                "code": 90,
+                "comments": 120
+            }
+        ],
+        "global-require": "error",
+        "handle-callback-err": [
+            "error",
+            "^(err|error)$"
+        ],
+        "no-buffer-constructor": "error",
+        "no-mixed-requires": [
+            "error",
+            {
+                "grouping": true,
+                "allowCall": true
+            }
+        ],
+        "no-path-concat": "error",
+        "import/extensions": "off",
+        "import/prefer-default-export": "off",
+        "import/no-default-export": "off",
+        "import/no-extraneous-dependencies": [
+            "error",
+            {
+                "devDependencies": true
+            }
+        ],
+        "prettier/prettier": [
+            "error",
+            {
+                "endOfLine": "auto"
+            }
+        ],
+        "require-jsdoc": "off",
+        "linebreak-style": "off",
+        "import/no-unresolved": "error",
+        "import/order": [
+            "error",
+            {
+                "groups": [
+                    "builtin",
+                    "external",
+                    "internal",
+                    "sibling",
+                    "parent",
+                    "index",
+                    "unknown"
+                ],
+                "pathGroups": [
+                    {
+                        "pattern": "@db/*",
+                        "group": "internal",
+                        "position": "before"
+                    },
+                    {
+                        "pattern": "@middlewares/*",
+                        "group": "internal",
+                        "position": "before"
+                    },
+                    {
+                        "pattern": "@validators/*",
+                        "group": "internal",
+                        "position": "before"
+                    },
+                    {
+                        "pattern": "@services/*",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@controller/*",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@routes/*",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@utils/*",
+                        "group": "internal",
+                        "position": "after"
+                    },
+                    {
+                        "pattern": "@src/*",
+                        "group": "internal",
+                        "position": "after"
+                    }
+                ],
+                "pathGroupsExcludedImportTypes": [
+                    "builtin"
+                ],
+                "distinctGroup": true,
+                "newlines-between": "always",
+                "alphabetize": {
+                    "order": "asc",
+                    "caseInsensitive": true
+                }
+            }
+        ]
+    },
+    "plugins": [
+        "@typescript-eslint/eslint-plugin",
+        "eslint-plugin-prettier",
+        "prettier",
+        "import"
+    ],
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [
+                    ".js",
+                    ".jsx",
+                    ".ts",
+                    ".tsx"
+                ]
+            },
+            "typescript": {
+                "project": "./tsconfig.json"
+            }
+        }
+    }
+}

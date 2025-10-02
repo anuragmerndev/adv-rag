@@ -27,6 +27,24 @@ const logger = createLogger({
     ],
 });
 
+const aiLogger = createLogger({
+    format: combine(
+        label({ label: 'expgen' }),
+        timestamp({ format: timestampFormat }),
+        appLogFormat,
+    ),
+    transports: [
+        new transports.Console(),
+        new transports.File({
+            filename: 'logs/ai-error.log',
+            level: 'error',
+        }),
+        new transports.File({
+            filename: 'logs/ai-combined.log',
+        }),
+    ],
+});
+
 const apiRequestLogger = (req: Request, res: Response, next: NextFunction) => {
     const start = Date.now();
 
@@ -46,4 +64,4 @@ const apiRequestLogger = (req: Request, res: Response, next: NextFunction) => {
     next();
 };
 
-export { logger, apiRequestLogger };
+export { logger, aiLogger, apiRequestLogger };
