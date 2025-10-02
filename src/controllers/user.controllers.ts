@@ -12,7 +12,7 @@ import {
     deleteUserbyID,
     getUserbyId,
     updateUser,
-} from '@services/user.services';
+} from '@services/models/user.services';
 
 import { ApiError } from '@utils/apiError';
 import { apiResponse } from '@utils/apiResponse';

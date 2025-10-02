@@ -53,7 +53,7 @@
         "max-len": [
             "error",
             {
-                "code": 90,
+                "code": 130,
                 "comments": 120
             }
         ],
