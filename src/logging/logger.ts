@@ -11,7 +11,7 @@ const appLogFormat = printf(({ level, message, label, timestamp }) => {
 
 const logger = createLogger({
     format: combine(
-        label({ label: 'expgen' }),
+        label({ label: 'adv-rag' }),
         timestamp({ format: timestampFormat }),
         appLogFormat,
     ),
@@ -29,7 +29,7 @@ const logger = createLogger({
 
 const aiLogger = createLogger({
     format: combine(
-        label({ label: 'expgen' }),
+        label({ label: 'adv-rag-ai' }),
         timestamp({ format: timestampFormat }),
         appLogFormat,
     ),
