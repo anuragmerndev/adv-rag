@@ -11,6 +11,8 @@ export const LLM_MODELS = {
     GPT4: 'gpt-4',
     GPT35_TURBO: 'gpt-3.5-turbo',
     GPT5_NANO: 'gpt-5-nano',
+    GPT_OSS: 'gpt-oss:20b',
+    GPT_4O_MINI: 'gpt-4o-mini',
 } as const;
 
 export type LLMModel = (typeof LLM_MODELS)[keyof typeof LLM_MODELS];
@@ -29,7 +31,7 @@ export interface ChatMessage {
 class LLMService {
     private static instance: LLMService;
     private openAI: OpenAI;
-    private defaultModel: LLMModel = LLM_MODELS.GPT5_NANO;
+    private defaultModel: LLMModel = LLM_MODELS.GPT_4O_MINI;
     private systemPrompt: string = `
         You are a helpful AI assistant. 
         You will be provided with the context of a document and a question. 
@@ -44,6 +46,7 @@ class LLMService {
         }
 
         this.openAI = new OpenAI({
+            // baseURL: 'http://localhost:11434/v1/',
             apiKey: process.env.OPENAI_API_KEY,
         });
 

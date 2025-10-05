@@ -10,5 +10,14 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=pgvector
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
 volumes:
   db:
+  redis_data:

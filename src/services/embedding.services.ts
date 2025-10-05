@@ -1,3 +1,5 @@
+import { performance } from 'node:perf_hooks';
+
 import OpenAI from 'openai';
 
 import { aiLogger } from '@logger/logger';
@@ -9,6 +11,8 @@ export const EMBEDDING_MODELS = {
     ADA_002: 'text-embedding-ada-002',
     SMALL: 'text-embedding-3-small',
     LARGE: 'text-embedding-3-large',
+    NOMIC: 'nomic-embed-text:v1.5',
+    MXBAI: 'mxbai-embed-large:latest',
 } as const;
 
 export type EmbeddingModel =
@@ -64,7 +68,6 @@ class EmbeddingService {
                 model: model || this.defaultModel,
                 input: text,
             });
-
             return response.data[0].embedding;
         } catch (error: any) {
             aiLogger.error('Failed to generate embedding:', error.message);
@@ -81,6 +84,8 @@ class EmbeddingService {
         model?: EmbeddingModel,
         batchSize: number = 100,
     ): Promise<number[][]> {
+        aiLogger.info(`Generating embeddings for ${texts.length} texts`);
+        const start = performance.now();
         if (!texts || texts.length === 0) {
             throw new Error('Texts array cannot be empty');
         }
@@ -120,7 +125,9 @@ class EmbeddingService {
                 );
             }
         }
-
+        aiLogger.info(
+            `Generated embeddings for ${texts.length} texts in ${Math.trunc(performance.now() - start)}ms`,
+        );
         return allEmbeddings;
     }
 

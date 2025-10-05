@@ -27,6 +27,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "husky": "^9.1.7",
+    "ioredis": "^5.8.0",
     "multer": "^2.0.2",
     "openai": "^4.104.0",
     "pdfjs-dist": "^5.4.149",

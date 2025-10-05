@@ -360,5 +360,7 @@ class PgVectorService {
     }
 }
 
+export { PgVectorService };
+
 // Export singleton instance
 export const vectorService = PgVectorService.getInstance();

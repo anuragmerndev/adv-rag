@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS document_chunk (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   doc_id TEXT NOT NULL REFERENCES document(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
-  embedding VECTOR(1536) NOT NULL,
+  embedding VECTOR(1024) NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -20,6 +20,3 @@ CREATE INDEX IF NOT EXISTS idx_document_chunk_embedding_ivfflat
 ON document_chunk 
 USING ivfflat (embedding vector_cosine_ops)
 WITH (lists = 100);
-
--- DOWN
-DROP TABLE IF EXISTS document_chunk CASCADE;
