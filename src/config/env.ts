@@ -44,4 +44,7 @@ export const config = {
     SIMILARITY_TOP_K: optionalInt('SIMILARITY_TOP_K', 5),
 
     ALLOWED_ORIGINS: optionalEnv('ALLOWED_ORIGINS', 'http://localhost:3000'),
+
+    CLERK_SECRET_KEY: requireEnv('CLERK_SECRET_KEY'),
+    CLERK_WEBHOOK_SECRET: requireEnv('CLERK_WEBHOOK_SECRET'),
 } as const;
