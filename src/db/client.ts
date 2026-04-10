@@ -1,9 +1,8 @@
-import dotenv from 'dotenv';
 import { Pool, PoolClient, PoolConfig } from 'pg';
 
-import { logger } from '../logging/logger';
+import { config as env } from '@config/env';
 
-dotenv.config();
+import { logger } from '../logging/logger';
 
 class DatabaseClient {
     private static instance: DatabaseClient;
@@ -11,8 +10,8 @@ class DatabaseClient {
     private isConnected: boolean = false;
 
     private constructor() {
-        const config: PoolConfig = {
-            connectionString: process.env.DATABASE_URL,
+        const poolConfig: PoolConfig = {
+            connectionString: env.DATABASE_URL,
             max: 20,
             min: 5,
             idleTimeoutMillis: 30000,
@@ -20,7 +19,7 @@ class DatabaseClient {
             statement_timeout: 60000,
         };
 
-        this.pool = new Pool(config);
+        this.pool = new Pool(poolConfig);
 
         this.pool.on('error', (err: Error) => {
             logger.error('Unexpected error on idle PostgreSQL client', { err });

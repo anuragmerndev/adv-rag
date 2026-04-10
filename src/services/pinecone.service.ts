@@ -1,5 +1,6 @@
 import { Pinecone } from '@pinecone-database/pinecone';
 
+import { config } from '@config/env';
 import { logger } from '@logger/logger';
 
 export interface PineconeSearchResult {
@@ -15,8 +16,8 @@ class PineconeService {
     private indexName: string;
 
     private constructor() {
-        this.client = new Pinecone({ apiKey: process.env.PINECONE_API_KEY! });
-        this.indexName = process.env.PINECONE_INDEX ?? 'ai-document';
+        this.client = new Pinecone({ apiKey: config.PINECONE_API_KEY });
+        this.indexName = config.PINECONE_INDEX;
     }
 
     public static getInstance(): PineconeService {

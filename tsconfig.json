@@ -8,8 +8,11 @@
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "paths": {
-            "@db/*": [
-                "./prisma/*"
+            "@config/*": [
+                "./src/config/*"
+            ],
+            "@types/*": [
+                "./src/types/*"
             ],
             "@controllers/*": [
                 "./src/controllers/*"

@@ -3,6 +3,8 @@ import crypto from 'node:crypto';
 
 import multer from 'multer';
 
+import { config } from '@config/env';
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, 'uploads');
@@ -20,7 +22,7 @@ const storage = multer.diskStorage({
     },
 });
 
-const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE ?? '26214400', 10);
+const MAX_FILE_SIZE = config.MAX_FILE_SIZE;
 
 const upload = multer({
     storage: storage,

@@ -1,5 +1,4 @@
 import cors from 'cors';
-import dotenv from 'dotenv';
 import express from 'express';
 
 import { errorHandler } from '@middlewares/globalErrorHandler';
@@ -11,8 +10,6 @@ import { rootRouter } from '@routes/index';
 import { db } from './db/client';
 import { cacheService } from './services/cache.service';
 import { pineconeService } from './services/pinecone.service';
-
-dotenv.config();
 
 const app = express();
 

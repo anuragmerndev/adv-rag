@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import OpenAI from 'openai';
 
+import { config } from '@config/env';
 import { aiLogger } from '@logger/logger';
 
 /**
@@ -41,13 +42,8 @@ class LLMService {
     `;
 
     constructor() {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY environment variable is not set');
-        }
-
         this.openAI = new OpenAI({
-            // baseURL: 'http://localhost:11434/v1/',
-            apiKey: process.env.OPENAI_API_KEY,
+            apiKey: config.OPENAI_API_KEY,
         });
 
         aiLogger.info('LLMService initialized');
