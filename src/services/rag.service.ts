@@ -39,7 +39,7 @@ class RagService {
             queryEmbedding = JSON.parse(cachedQueryEmbedding);
         } else {
             queryEmbedding = await this.embeddingService.getEmbedding(query);
-            cacheService.setCache(
+            await cacheService.setCache(
                 `emb:${fingerprint}`,
                 JSON.stringify(queryEmbedding),
             );

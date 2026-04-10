@@ -98,16 +98,23 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
             cachedQueryEmbedding ? 'cached' : 'false ',
         );
 
-        return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
+        const responsePayload = {
             data: response,
             message: 'success',
             meta: {
-                decision: policyResult.decision, // allow | partial
+                decision: policyResult.decision,
                 reason: policyResult.reason,
                 provenance,
             },
             embCache: cachedQueryEmbedding,
-        });
+        };
+
+        await cacheService.setCache(
+            `resp:${shaFingerprint}`,
+            JSON.stringify(responsePayload),
+        );
+
+        return apiResponse(res, RESPONSE_STATUS.SUCCESS, responsePayload);
     }
 
     res.setHeader('Content-Type', 'text/event-stream');

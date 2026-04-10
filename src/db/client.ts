@@ -54,7 +54,9 @@ class DatabaseClient {
             const result = await this.pool.query(text, params);
             const duration = Date.now() - start;
             if (duration > 1000) {
-                logger.warn(`Slow query (${duration}ms): ${text.substring(0, 100)}`);
+                logger.warn(
+                    `Slow query (${duration}ms): ${text.substring(0, 100)}`,
+                );
             }
             return {
                 rows: result.rows,
