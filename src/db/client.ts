@@ -111,29 +111,6 @@ class DatabaseClient {
     }
 
     /**
-     * Initialize pgvector extension and verify setup
-     */
-    public async initializePgVector(): Promise<void> {
-        try {
-            // Enable pgvector extension
-            await this.query('CREATE EXTENSION IF NOT EXISTS vector');
-
-            // Verify extension is loaded
-            const result = await this.query(
-                // eslint-disable-next-line prettier/prettier
-                'SELECT·*·FROM·pg_extension·WHERE·extname·=·\'vector\'',
-            );
-            if (result.rows.length === 0) {
-                throw new Error('pgvector extension not found');
-            }
-            console.log('✓ pgvector extension initialized');
-        } catch (error) {
-            console.error('✗ Failed to initialize pgvector:', error);
-            throw error;
-        }
-    }
-
-    /**
      * Graceful shutdown
      */
     public async close(): Promise<void> {

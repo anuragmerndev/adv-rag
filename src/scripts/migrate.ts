@@ -124,7 +124,6 @@ export class MigrationManager {
 
         try {
             await db.testConnection();
-            await db.initializePgVector();
 
             const executed = await this.getExecutedMigrations();
             const allMigrations = await this.loadMigrations();
