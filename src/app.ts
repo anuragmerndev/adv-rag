@@ -7,13 +7,22 @@ import { apiRequestLogger } from '@logger/logger';
 
 import { rootRouter } from '@routes/index';
 
+import { config } from './config/env';
 import { db } from './db/client';
 import { cacheService } from './services/cache.service';
 import { pineconeService } from './services/pinecone.service';
 
 const app = express();
 
-app.use(cors());
+const isProd = config.NODE_ENV === 'production';
+const allowedOrigins = config.ALLOWED_ORIGINS.split(',').map((o) => o.trim());
+
+app.use(
+    cors({
+        origin: isProd ? allowedOrigins : true,
+        credentials: true,
+    }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
