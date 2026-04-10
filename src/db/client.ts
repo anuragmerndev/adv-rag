@@ -1,12 +1,10 @@
 import dotenv from 'dotenv';
 import { Pool, PoolClient, PoolConfig } from 'pg';
 
+import { logger } from '../logging/logger';
+
 dotenv.config();
 
-/**
- * Singleton PostgreSQL connection pool
- * Reuses connections across requests for optimal performance
- */
 class DatabaseClient {
     private static instance: DatabaseClient;
     private pool: Pool;
@@ -15,35 +13,27 @@ class DatabaseClient {
     private constructor() {
         const config: PoolConfig = {
             connectionString: process.env.DATABASE_URL,
-            // Connection pool settings optimized for web servers
-            max: 20, // Maximum pool size (adjust based on load)
-            min: 5, // Keep 5 connections ready
-            idleTimeoutMillis: 30000, // Close idle connections after 30s
-            connectionTimeoutMillis: 10000, // Timeout if can't connect in 10s
-            // Statement timeout for long-running queries
-            statement_timeout: 60000, // 60s timeout for queries
+            max: 20,
+            min: 5,
+            idleTimeoutMillis: 30000,
+            connectionTimeoutMillis: 10000,
+            statement_timeout: 60000,
         };
 
         this.pool = new Pool(config);
 
-        // Handle pool errors
         this.pool.on('error', (err: Error) => {
-            console.error('Unexpected error on idle PostgreSQL client:', err);
-            // Don't exit process, let the app handle it
+            logger.error('Unexpected error on idle PostgreSQL client', { err });
         });
 
-        // Log successful connection
         this.pool.on('connect', () => {
             if (!this.isConnected) {
-                console.log('✓ PostgreSQL pool connected');
+                logger.info('PostgreSQL pool connected');
                 this.isConnected = true;
             }
         });
     }
 
-    /**
-     * Get the singleton instance
-     */
     public static getInstance(): DatabaseClient {
         if (!DatabaseClient.instance) {
             DatabaseClient.instance = new DatabaseClient();
@@ -51,16 +41,10 @@ class DatabaseClient {
         return DatabaseClient.instance;
     }
 
-    /**
-     * Get the connection pool
-     */
     public getPool(): Pool {
         return this.pool;
     }
 
-    /**
-     * Execute a query with automatic connection management
-     */
     public async query<T = any>(
         text: string,
         params?: any[],
@@ -69,64 +53,45 @@ class DatabaseClient {
         try {
             const result = await this.pool.query(text, params);
             const duration = Date.now() - start;
-            // Log slow queries (> 1s)
             if (duration > 1000) {
-                console.warn(
-                    `Slow query (${duration}ms):`,
-                    text.substring(0, 100),
-                );
+                logger.warn(`Slow query (${duration}ms): ${text.substring(0, 100)}`);
             }
             return {
                 rows: result.rows,
                 rowCount: result.rowCount || 0,
             };
         } catch (error) {
-            console.error('Database query error:', error);
+            logger.error('Database query error', { error });
             throw error;
         }
     }
 
-    /**
-     * Get a client from the pool for transactions
-     */
     public async getClient(): Promise<PoolClient> {
         return await this.pool.connect();
     }
 
-    /**
-     * Test database connection
-     */
     public async testConnection(): Promise<boolean> {
         try {
-            const result = await this.query('SELECT NOW()');
-            console.log(
-                '✓ Database connection test successful:',
-                result.rows[0],
-            );
+            await this.query('SELECT NOW()');
+            logger.info('Database connection test successful');
             return true;
         } catch (error) {
-            console.error('✗ Database connection test failed:', error);
+            logger.error('Database connection test failed', { error });
             return false;
         }
     }
 
-    /**
-     * Graceful shutdown
-     */
     public async close(): Promise<void> {
         try {
             await this.pool.end();
             this.isConnected = false;
-            console.log('✓ Database pool closed');
+            logger.info('Database pool closed');
         } catch (error) {
-            console.error('Error closing database pool:', error);
+            logger.error('Error closing database pool', { error });
             throw error;
         }
     }
 
-    /**
-     * Get pool statistics
-     */
     public getStats() {
         return {
             totalCount: this.pool.totalCount,
@@ -136,8 +101,6 @@ class DatabaseClient {
     }
 }
 
-// Export singleton instance
 export const db = DatabaseClient.getInstance();
 
-// Export types for convenience
 export type { PoolClient };
