@@ -30,6 +30,19 @@ Commits must follow Conventional Commits format (enforced by commitlint + husky)
 
 ## Workflow Requirements
 
+### Branching Strategy
+
+Always create a new feature branch before making any code changes. Never commit directly to `main`. Use the following naming conventions:
+
+- **Features:** `feat/<short-description>` (e.g., `feat/add-streaming-support`)
+- **Bug fixes:** `fix/<short-description>` (e.g., `fix/cache-invalidation`)
+- **Refactors:** `refactor/<short-description>`
+- **Chores:** `chore/<short-description>`
+
+Branch from `main`, and when work is complete, create a PR back to `main`.
+
+### Code Review
+
 After completing any code changes, always run the `/review` command and fix every issue it reports before considering the task done. Do not skip this step even for small changes.
 
 ## Architecture
