@@ -1,13 +1,11 @@
+import 'dotenv/config';
+
 import cluster from 'cluster';
 import { cpus } from 'os';
-
-import { config } from 'dotenv';
 
 import { logger } from '@logger/logger';
 
 import { app } from './app';
-
-config();
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
 

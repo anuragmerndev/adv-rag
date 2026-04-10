@@ -290,7 +290,9 @@ DROP TABLE IF EXISTS example;
 
 // CLI handling
 async function main() {
-    const migrationManager = new MigrationManager('../db/migrations');
+    const migrationManager = new MigrationManager(
+        path.join(__dirname, '../db/migrations'),
+    );
     const command = process.argv[2];
     const arg = process.argv[3];
 
