@@ -59,8 +59,8 @@ class RagService {
         }
 
         const provenance = similaritySearchResult.map((f) => ({
-            id: f.id,
-            score: f.similarity,
+            documentName: f.documentName,
+            content: f.content,
         }));
 
         const preFilterDocs = (text: string) => {
