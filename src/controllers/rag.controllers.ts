@@ -5,8 +5,8 @@ import { cacheService } from '@services/cache.service';
 import { EmbeddingService } from '@services/embedding.services';
 import { langchainService } from '@services/langchain.services';
 import { LLMService } from '@services/llm.service';
+import { pineconeService } from '@services/pinecone.service';
 import { ragService } from '@services/rag.service';
-import { vectorService } from '@services/vector.services';
 
 import { apiResponse } from '@utils/apiResponse';
 import { asyncHandler } from '@utils/asyncHandler';
@@ -23,10 +23,6 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     const data = splitdoc.map((item) => item.pageContent);
     const embeddingService = new EmbeddingService();
     const embeddings = await embeddingService.getBatchEmbeddings(data);
-    const dataToSave = data.map((item, index) => ({
-        content: item,
-        embedding: embeddings[index],
-    }));
 
     const id = createId();
     const doc = await dbOps.insert<Document>(Tables.document, {
@@ -36,9 +32,19 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
         updated_at: new Date(),
         is_deleted: false,
     });
-    console.log('doc created', { doc });
-    await vectorService.insertChunksBatch(doc.id, dataToSave);
-    return apiResponse(res, 200, { data: embeddings, message: 'success' });
+    await pineconeService.upsertChunks(
+        'default',
+        doc.id,
+        data.map((content) => ({
+            content,
+            documentName: file?.filename ?? '',
+        })),
+        embeddings,
+    );
+    return apiResponse(res, 200, {
+        data: { documentId: doc.id },
+        message: 'success',
+    });
 });
 
 const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
