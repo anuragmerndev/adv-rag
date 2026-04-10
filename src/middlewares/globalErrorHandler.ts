@@ -17,7 +17,9 @@ const errorHandler = (
         error = new ApiError(statusCode, message);
     }
 
-    return res.status(error.statusCode).json({ message: error.message });
+    return res
+        .status(error.statusCode)
+        .json({ success: false, error: error.message });
 };
 
 export { errorHandler };

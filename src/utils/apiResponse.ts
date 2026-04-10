@@ -1,8 +1,7 @@
 import { Response } from 'express';
 
-import { RESPONSE_STATUS } from '@utils/responseStatus';
-
-function apiResponse(res: Response, statusCode: RESPONSE_STATUS, data: any) {
-    return res.status(statusCode).json(data);
+function apiResponse(res: Response, statusCode: number, data: unknown) {
+    return res.status(statusCode).json({ success: true, data });
 }
+
 export { apiResponse };

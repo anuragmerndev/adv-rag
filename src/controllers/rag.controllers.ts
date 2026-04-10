@@ -33,7 +33,7 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     const id = createId();
     const doc = await dbOps.insert<Document>(Tables.document, {
         id: id,
-        name: file?.filename,
+        name: file?.originalname ?? file?.filename ?? '',
         created_at: new Date(),
         updated_at: new Date(),
         is_deleted: false,
@@ -43,21 +43,23 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
         doc.id,
         data.map((content) => ({
             content,
-            documentName: file?.filename ?? '',
+            documentName: file?.originalname ?? file?.filename ?? '',
         })),
         embeddings,
     );
-    return apiResponse(res, 200, {
-        data: { documentId: doc.id },
-        message: 'success',
+    return apiResponse(res, RESPONSE_STATUS.CREATED, {
+        message: 'Document uploaded and indexed successfully',
+        documentId: doc.id,
+        originalName: file?.originalname ?? '',
+        chunks: data.length,
     });
 });
 
 const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
-    const { query, stream } = req.body;
+    const { user_question, stream } = req.body;
     const llmService = new LLMService();
 
-    const normalizedQuery = normalizeQuery(query);
+    const normalizedQuery = normalizeQuery(user_question);
     const shaFingerprint = createShaFingerprint(normalizedQuery);
 
     const cachedResponse = await cacheService.getCache(
@@ -65,75 +67,73 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     );
     if (cachedResponse) {
         res.setHeader('X-Cache', 'cached');
-        const response = JSON.parse(cachedResponse);
-        return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
-            ...response,
-        });
-    }
-
-    const data = await ragService.ragPipeline(query, shaFingerprint);
-
-    if (!data) {
-        return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
-            data: 'we do not have answer for this, kindly ask another question',
-            message: 'success',
-            meta: {
-                decision: 'refuse',
-                reason: 'no_relevant_context',
-                provenance: [],
-            },
-        });
-    }
-
-    const {
-        policyResult,
-        preFilterResults,
-        provenance,
-        contextData,
-        cachedQueryEmbedding,
-    } = data;
-
-    if (!stream && preFilterResults && preFilterResults.length > 0) {
-        const response = await llmService.generateAnswer(
-            query,
-            preFilterResults[0].prefilter.redacted,
+        return apiResponse(
+            res,
+            RESPONSE_STATUS.SUCCESS,
+            JSON.parse(cachedResponse),
         );
+    }
+
+    const ragData = await ragService.ragPipeline(user_question, shaFingerprint);
+
+    if (!ragData) {
+        return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
+            // eslint-disable-next-line quotes
+            answer: "I don't have enough context to answer that question.",
+            cached: false,
+            provenance: [],
+        });
+    }
+
+    const { policyResult, preFilterResults, provenance, cachedQueryEmbedding } = ragData;
+
+    // Apply redaction to context before passing to LLM (fixes streaming redaction gap)
+    const redactedContext = preFilterResults
+        .map((r) => r.prefilter.redacted)
+        .join('\n\n');
+
+    if (!stream) {
+        const answer = await llmService.generateAnswer(
+            user_question,
+            redactedContext,
+        );
+
         res.setHeader('X-Cache', 'false');
         res.setHeader(
             'X-Cache-Embed',
-            cachedQueryEmbedding ? 'cached' : 'false ',
+            cachedQueryEmbedding ? 'cached' : 'false',
         );
 
         const responsePayload = {
-            data: response,
-            message: 'success',
-            meta: {
+            answer,
+            cached: false,
+            embeddingCached: cachedQueryEmbedding,
+            provenance,
+            policy: {
                 decision: policyResult.decision,
                 reason: policyResult.reason,
-                provenance,
             },
-            embCache: cachedQueryEmbedding,
         };
 
         await cacheService.setCache(
             `resp:${shaFingerprint}`,
             JSON.stringify(responsePayload),
         );
-
         return apiResponse(res, RESPONSE_STATUS.SUCCESS, responsePayload);
     }
 
+    // Streaming path
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
     res.setHeader('X-Cache', 'false');
-    res.setHeader('X-Cache-Embed', cachedQueryEmbedding ? 'cached' : 'false ');
+    res.setHeader('X-Cache-Embed', cachedQueryEmbedding ? 'cached' : 'false');
 
-    let resp = '';
+    let fullAnswer = '';
 
-    await llmService.streamAnswer(query, contextData, (chunk) => {
-        resp += chunk;
+    await llmService.streamAnswer(user_question, redactedContext, (chunk) => {
+        fullAnswer += chunk;
         res.write(
             `data: ${JSON.stringify({ type: 'chunk', data: chunk })}\n\n`,
         );
@@ -142,10 +142,10 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     res.write(
         `data: ${JSON.stringify({
             type: 'done',
-            meta: {
+            provenance,
+            policy: {
                 decision: policyResult.decision,
                 reason: policyResult.reason,
-                provenance,
             },
         })}\n\n`,
     );
@@ -153,15 +153,14 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     await cacheService.setCache(
         `resp:${shaFingerprint}`,
         JSON.stringify({
-            data: resp,
-            message: 'success',
-            meta: {
+            answer: fullAnswer,
+            cached: false,
+            embeddingCached: cachedQueryEmbedding,
+            provenance,
+            policy: {
                 decision: policyResult.decision,
                 reason: policyResult.reason,
-                provenance,
             },
-            cache: false,
-            embCache: cachedQueryEmbedding,
         }),
     );
 
