@@ -1,19 +1,54 @@
 import 'dotenv/config';
 
 import cluster from 'cluster';
+import http from 'http';
 import { cpus } from 'os';
 
 import { config } from '@config/env';
 import { logger } from '@logger/logger';
 
 import { app } from './app';
+import { db } from './db/client';
+import { cacheService } from './services/cache.service';
 
 const { PORT, NODE_ENV } = config;
 
-if (NODE_ENV === 'development') {
-    app.listen(PORT, () => {
-        logger.info(`server is running on port ${PORT}`);
+function startServer() {
+    const server = http.createServer(app);
+
+    server.listen(PORT, () => {
+        logger.info(`server is running on port ${PORT} (pid ${process.pid})`);
     });
+
+    const shutdown = async (signal: string) => {
+        logger.info(`${signal} received — shutting down gracefully`);
+
+        server.close(async () => {
+            try {
+                await Promise.all([cacheService.disconnect(), db.close()]);
+                logger.info('all connections closed — exiting');
+                process.exit(0);
+            } catch (err) {
+                logger.error('error during shutdown', { err });
+                process.exit(1);
+            }
+        });
+
+        // Force exit if shutdown takes too long
+        setTimeout(() => {
+            logger.error('shutdown timed out — forcing exit');
+            process.exit(1);
+        }, 10000);
+    };
+
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+
+    return server;
+}
+
+if (NODE_ENV === 'development') {
+    startServer();
 }
 
 if (NODE_ENV === 'production') {
@@ -25,12 +60,11 @@ if (NODE_ENV === 'production') {
             cluster.fork();
         }
 
-        cluster.on('exit', () => {
+        cluster.on('exit', (worker) => {
+            logger.warn(`Worker ${worker.process.pid} died — restarting`);
             cluster.fork();
         });
     } else {
-        app.listen(PORT, () => {
-            logger.info(`server is running on pid ${process.pid}`);
-        });
+        startServer();
     }
 }

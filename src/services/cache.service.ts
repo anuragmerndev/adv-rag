@@ -40,6 +40,10 @@ class CacheService {
             return false;
         }
     }
+
+    public async disconnect(): Promise<void> {
+        await this.redisClient.quit();
+    }
 }
 
 const cacheService = CacheService.getInstance();
