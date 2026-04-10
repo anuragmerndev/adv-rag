@@ -88,12 +88,10 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     } = data;
 
     if (!stream && preFilterResults && preFilterResults.length > 0) {
-        const llmAnswerTime = Date.now();
         const response = await llmService.generateAnswer(
             query,
             preFilterResults[0].prefilter.redacted,
         );
-        console.log('llm answer took ', Date.now() - llmAnswerTime);
         res.setHeader('X-Cache', 'false');
         res.setHeader(
             'X-Cache-Embed',
