@@ -55,6 +55,17 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
+const SSE_HEADERS = {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    Connection: 'keep-alive',
+    'X-Accel-Buffering': 'no',
+} as const;
+
+const setSseHeaders = (res: Response) => {
+    Object.entries(SSE_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
+};
+
 const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     const { user_question, stream } = req.body;
     const llmService = new LLMService();
@@ -66,17 +77,45 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
         `resp:${shaFingerprint}`,
     );
     if (cachedResponse) {
+        const parsed = JSON.parse(cachedResponse);
+        // Normalise across old format { data, meta.provenance } and new { answer, provenance }
+        const cachedAnswer: string = parsed.answer ?? parsed.data ?? '';
+        const cachedProvenance =
+            parsed.provenance ?? parsed.meta?.provenance ?? [];
+
         res.setHeader('X-Cache', 'cached');
-        return apiResponse(
-            res,
-            RESPONSE_STATUS.SUCCESS,
-            JSON.parse(cachedResponse),
-        );
+
+        if (stream) {
+            setSseHeaders(res);
+            res.write(
+                `data: ${JSON.stringify({ type: 'chunk', data: cachedAnswer })}\n\n`,
+            );
+            res.write(
+                `data: ${JSON.stringify({ type: 'done', provenance: cachedProvenance })}\n\n`,
+            );
+            return res.end();
+        }
+
+        return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
+            answer: cachedAnswer,
+            provenance: cachedProvenance,
+        });
     }
 
     const ragData = await ragService.ragPipeline(user_question, shaFingerprint);
 
     if (!ragData) {
+        if (stream) {
+            setSseHeaders(res);
+            res.write(
+                // eslint-disable-next-line quotes
+                `data: ${JSON.stringify({ type: 'chunk', data: "I don't have enough context to answer that question." })}\n\n`,
+            );
+            res.write(
+                `data: ${JSON.stringify({ type: 'done', provenance: [] })}\n\n`,
+            );
+            return res.end();
+        }
         return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
             // eslint-disable-next-line quotes
             answer: "I don't have enough context to answer that question.",
@@ -124,10 +163,7 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     }
 
     // Streaming path
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
+    setSseHeaders(res);
     res.setHeader('X-Cache', 'false');
     res.setHeader('X-Cache-Embed', cachedQueryEmbedding ? 'cached' : 'false');
 
