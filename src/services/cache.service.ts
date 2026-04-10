@@ -32,6 +32,15 @@ class CacheService {
     public deleteCache(key: string): Promise<number> {
         return this.redisClient.del(key);
     }
+
+    public async isHealthy(): Promise<boolean> {
+        try {
+            const result = await this.redisClient.ping();
+            return result === 'PONG';
+        } catch {
+            return false;
+        }
+    }
 }
 
 const cacheService = CacheService.getInstance();
