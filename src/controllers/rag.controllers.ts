@@ -85,7 +85,8 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
         });
     }
 
-    const { policyResult, preFilterResults, provenance, cachedQueryEmbedding } = ragData;
+    const { policyResult, preFilterResults, provenance, cachedQueryEmbedding } =
+        ragData;
 
     // Apply redaction to context before passing to LLM (fixes streaming redaction gap)
     const redactedContext = preFilterResults
