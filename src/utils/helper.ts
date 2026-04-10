@@ -20,7 +20,19 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage: storage });
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE ?? '26214400', 10);
+
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: MAX_FILE_SIZE },
+    fileFilter: (_req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+            cb(new Error('Only PDF files are allowed'));
+            return;
+        }
+        cb(null, true);
+    },
+});
 
 const CONTRACTIONS: Record<string, string> = {
     "i'm": 'i am',
