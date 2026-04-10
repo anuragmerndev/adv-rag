@@ -38,6 +38,7 @@
         }
     },
     "exclude": [
-        "**/*.test.ts"
+        "**/*.test.ts",
+        "prisma.config.ts"
     ]
 }
