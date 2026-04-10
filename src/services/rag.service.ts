@@ -1,11 +1,9 @@
-import dotenv from 'dotenv';
-
+import { config } from '@config/env';
 import { logger } from '@logger/logger';
 
 import { cacheService } from './cache.service';
 import { EmbeddingService } from './embedding.services';
 import { pineconeService } from './pinecone.service';
-dotenv.config();
 
 const DEFAULT_NAMESPACE = 'default';
 
@@ -45,7 +43,7 @@ class RagService {
             );
         }
 
-        const K = 5;
+        const K = config.SIMILARITY_TOP_K;
         const similaritySearchResult = await pineconeService.similaritySearch(
             namespace,
             queryEmbedding,

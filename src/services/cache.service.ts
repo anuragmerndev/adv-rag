@@ -1,14 +1,13 @@
 import { Redis } from 'ioredis';
 
+import { config } from '@config/env';
+
 class CacheService {
     private static instance: CacheService;
     private redisClient: Redis;
 
     private constructor() {
-        this.redisClient = new Redis({
-            host: 'localhost',
-            port: 6379,
-        });
+        this.redisClient = new Redis(config.REDIS_URL);
     }
 
     public static getInstance(): CacheService {

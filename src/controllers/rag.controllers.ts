@@ -1,6 +1,8 @@
 import { createId } from '@paralleldrive/cuid2';
 import { Request, Response } from 'express';
 
+import { config } from '@config/env';
+
 import { cacheService } from '@services/cache.service';
 import { EmbeddingService } from '@services/embedding.services';
 import { langchainService } from '@services/langchain.services';
@@ -19,7 +21,11 @@ import { Document, Tables } from '../db/schemas';
 const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     const file = req.file;
     const chunks = await langchainService.loadDocument(file!.path);
-    const splitdoc = await langchainService.splitDocuments(500, 100, chunks);
+    const splitdoc = await langchainService.splitDocuments(
+        config.CHUNK_SIZE,
+        config.CHUNK_OVERLAP,
+        chunks,
+    );
     const data = splitdoc.map((item) => item.pageContent);
     const embeddingService = new EmbeddingService();
     const embeddings = await embeddingService.getBatchEmbeddings(data);

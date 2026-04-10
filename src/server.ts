@@ -3,21 +3,20 @@ import 'dotenv/config';
 import cluster from 'cluster';
 import { cpus } from 'os';
 
+import { config } from '@config/env';
 import { logger } from '@logger/logger';
 
 import { app } from './app';
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
+const { PORT, NODE_ENV } = config;
 
-const ENV = process.env.NODE_ENV;
-
-if (ENV === 'development') {
+if (NODE_ENV === 'development') {
     app.listen(PORT, () => {
-        logger.info(`server is running ${PORT}`);
+        logger.info(`server is running on port ${PORT}`);
     });
 }
 
-if (ENV === 'production') {
+if (NODE_ENV === 'production') {
     const numCpus = cpus().length;
 
     if (cluster.isPrimary) {
@@ -31,7 +30,7 @@ if (ENV === 'production') {
         });
     } else {
         app.listen(PORT, () => {
-            logger.info(`server is running on ${process.pid}`);
+            logger.info(`server is running on pid ${process.pid}`);
         });
     }
 }

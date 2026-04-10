@@ -2,6 +2,7 @@ import { performance } from 'node:perf_hooks';
 
 import OpenAI from 'openai';
 
+import { config } from '@config/env';
 import { aiLogger } from '@logger/logger';
 
 /**
@@ -27,12 +28,8 @@ class EmbeddingService {
     private defaultModel: EmbeddingModel = EMBEDDING_MODELS.SMALL;
 
     constructor() {
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY environment variable is not set');
-        }
-
         this.openAI = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY,
+            apiKey: config.OPENAI_API_KEY,
         });
 
         aiLogger.info('EmbeddingService initialized');
