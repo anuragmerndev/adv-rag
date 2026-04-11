@@ -8,7 +8,7 @@ import { config } from '@config/env';
 import { logger } from '@logger/logger';
 
 import { app } from './app';
-import { db } from './db/client';
+import { prisma } from './db/prisma';
 import { cacheService } from './services/cache.service';
 
 const { PORT, NODE_ENV } = config;
@@ -25,7 +25,7 @@ function startServer() {
 
         server.close(async () => {
             try {
-                await Promise.all([cacheService.disconnect(), db.close()]);
+                await Promise.all([cacheService.disconnect(), prisma.$disconnect()]);
                 logger.info('all connections closed — exiting');
                 process.exit(0);
             } catch (err) {
