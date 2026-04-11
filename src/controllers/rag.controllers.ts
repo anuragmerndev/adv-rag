@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2';
 import { Request, Response } from 'express';
 
 import { config } from '@config/env';
@@ -15,11 +14,13 @@ import { asyncHandler } from '@utils/asyncHandler';
 import { createShaFingerprint, normalizeQuery } from '@utils/helper';
 import { RESPONSE_STATUS } from '@utils/responseStatus';
 
-import { dbOps } from '../db/databaseOperations';
-import { Document, Tables } from '../db/schemas';
+import { prisma } from '@db/prisma';
 
 const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     const file = req.file;
+    // TODO: replace with (req as any).userId once auth middleware is wired (Task 3)
+    const userId: string = (req as any).userId ?? 'anonymous';
+
     const chunks = await langchainService.loadDocument(file!.path);
     const splitdoc = await langchainService.splitDocuments(
         config.CHUNK_SIZE,
@@ -30,14 +31,16 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     const embeddingService = new EmbeddingService();
     const embeddings = await embeddingService.getBatchEmbeddings(data);
 
-    const id = createId();
-    const doc = await dbOps.insert<Document>(Tables.document, {
-        id: id,
-        name: file?.originalname ?? file?.filename ?? '',
-        created_at: new Date(),
-        updated_at: new Date(),
-        is_deleted: false,
+    const doc = await prisma.document.create({
+        data: {
+            userId,
+            originalName: file?.originalname ?? file?.filename ?? '',
+            chunkCount: data.length,
+            fileSize: file?.size ?? 0,
+            filePath: file?.path ?? null,
+        },
     });
+
     await pineconeService.upsertChunks(
         'default',
         doc.id,

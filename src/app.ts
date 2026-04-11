@@ -8,7 +8,7 @@ import { apiRequestLogger } from '@logger/logger';
 import { rootRouter } from '@routes/index';
 
 import { config } from './config/env';
-import { db } from './db/client';
+import { prisma } from './db/prisma';
 import { cacheService } from './services/cache.service';
 import { pineconeService } from './services/pinecone.service';
 
@@ -30,7 +30,7 @@ app.use(apiRequestLogger);
 
 app.get('/healthz', async (_req, res) => {
     const [postgres, redis, pinecone] = await Promise.all([
-        db.testConnection().catch(() => false),
+        prisma.$queryRaw`SELECT 1`.then(() => true).catch(() => false),
         cacheService.isHealthy().catch(() => false),
         pineconeService.isHealthy().catch(() => false),
     ]);
