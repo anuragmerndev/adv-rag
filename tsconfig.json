@@ -7,6 +7,9 @@
         "strict": true,
         "resolveJsonModule": true,
         "skipLibCheck": true,
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "target": "ES2023",
         "paths": {
             "@config/*": [
                 "./src/config/*"
