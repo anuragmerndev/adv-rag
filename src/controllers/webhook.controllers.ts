@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { Webhook } from 'svix';
 
-import { config } from '@config/env';
 import { prisma } from '@db/prisma';
+
+import { config } from '@config/env';
+
 import { asyncHandler } from '@utils/asyncHandler';
 
 export const clerkWebhook = asyncHandler(
@@ -17,9 +19,7 @@ export const clerkWebhook = asyncHandler(
                 'svix-signature': req.headers['svix-signature'] as string,
             }) as { type: string; data: Record<string, any> };
         } catch {
-            return res
-                .status(400)
-                .json({ error: 'Invalid webhook signature' });
+            return res.status(400).json({ error: 'Invalid webhook signature' });
         }
 
         const { type, data } = event;
