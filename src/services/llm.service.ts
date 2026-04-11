@@ -80,6 +80,7 @@ class LLMService {
         query: string,
         context: string,
         model?: LLMModel,
+        history?: ChatMessage[],
     ): Promise<string> {
         if (!query || query.trim().length === 0) {
             throw new Error('Query cannot be empty');
@@ -95,6 +96,7 @@ class LLMService {
                     role: 'system',
                     content: this.systemPrompt,
                 },
+                ...(history ?? []),
                 {
                     role: 'user',
                     content: `Context:\n${context}\n\nQuestion: ${query}\n\nPlease answer the question based on the provided context.`,
@@ -133,6 +135,7 @@ class LLMService {
         context: string,
         onChunk: (chunk: string) => void,
         model?: LLMModel,
+        history?: ChatMessage[],
     ): Promise<string> {
         if (!query || query.trim().length === 0) {
             throw new Error('Query cannot be empty');
@@ -148,6 +151,7 @@ class LLMService {
                     role: 'system',
                     content: this.systemPrompt,
                 },
+                ...(history ?? []),
                 {
                     role: 'user',
                     content: `Context:\n${context}\n\nQuestion: ${query}\n\nPlease answer the question based on the provided context.`,
