@@ -7,6 +7,7 @@ export const queryValidator = z.object({
         .max(2000, 'user_question must be 2000 characters or less')
         .trim(),
     stream: z.boolean().optional().default(false),
+    conversationId: z.string().optional(),
 });
 
 export type QueryInput = z.infer<typeof queryValidator>;
