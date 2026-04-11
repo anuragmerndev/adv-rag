@@ -13,9 +13,7 @@ export const requireAuth = async (
     const { userId: clerkId } = getAuth(req);
 
     if (!clerkId) {
-        return res
-            .status(401)
-            .json({ success: false, error: 'Unauthorised' });
+        return res.status(401).json({ success: false, error: 'Unauthorised' });
     }
 
     const user = await prisma.user.findUnique({ where: { clerkId } });

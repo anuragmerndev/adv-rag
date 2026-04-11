@@ -1,5 +1,7 @@
 import { Router } from 'express';
 
+import { requireAuth } from '@middlewares/auth.middleware';
+
 import {
     createConversation,
     deleteConversation,
@@ -7,8 +9,6 @@ import {
     listConversations,
     updateConversation,
 } from '@controllers/conversation.controllers';
-
-import { requireAuth } from '@middlewares/auth.middleware';
 
 const conversationRouter = Router();
 

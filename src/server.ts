@@ -25,7 +25,10 @@ function startServer() {
 
         server.close(async () => {
             try {
-                await Promise.all([cacheService.disconnect(), prisma.$disconnect()]);
+                await Promise.all([
+                    cacheService.disconnect(),
+                    prisma.$disconnect(),
+                ]);
                 logger.info('all connections closed — exiting');
                 process.exit(0);
             } catch (err) {

@@ -7,3 +7,4 @@ dist
 logs
 uploads/
 /src/generated/prisma
+prisma.config.js
