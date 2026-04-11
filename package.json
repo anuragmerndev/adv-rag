@@ -17,6 +17,7 @@
     "db:migrate:create": "tsx src/scripts/migrate.ts create"
   },
   "dependencies": {
+    "@clerk/express": "^2.1.0",
     "@langchain/community": "^0.3.57",
     "@langchain/core": "^0.3.78",
     "@langchain/textsplitters": "^0.1.0",

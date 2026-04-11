@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { requireAuth } from '@middlewares/auth.middleware';
 import { validateBody } from '@middlewares/validateBody';
 
 import { queryValidator } from '@validators/rag.validators';

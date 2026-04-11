@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 
+import { clerkAuth } from '@middlewares/auth.middleware';
 import { errorHandler } from '@middlewares/globalErrorHandler';
 
 import { apiRequestLogger } from '@logger/logger';
@@ -25,6 +26,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(clerkAuth);
 
 app.use(apiRequestLogger);
 

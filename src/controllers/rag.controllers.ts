@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 
+import { prisma } from '@db/prisma';
+
 import { config } from '@config/env';
 
 import { cacheService } from '@services/cache.service';
@@ -14,12 +16,9 @@ import { asyncHandler } from '@utils/asyncHandler';
 import { createShaFingerprint, normalizeQuery } from '@utils/helper';
 import { RESPONSE_STATUS } from '@utils/responseStatus';
 
-import { prisma } from '@db/prisma';
-
 const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     const file = req.file;
-    // TODO: replace with (req as any).userId once auth middleware is wired (Task 3)
-    const userId: string = (req as any).userId ?? 'anonymous';
+    const userId: string = (req as any).userId;
 
     const chunks = await langchainService.loadDocument(file!.path);
     const splitdoc = await langchainService.splitDocuments(
