@@ -41,7 +41,7 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     });
 
     await pineconeService.upsertChunks(
-        'default',
+        userId,
         doc.id,
         data.map((content) => ({
             content,
@@ -70,6 +70,7 @@ const setSseHeaders = (res: Response) => {
 
 const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     const { user_question, stream } = req.body;
+    const userId: string = (req as any).userId;
     const llmService = new LLMService();
 
     const normalizedQuery = normalizeQuery(user_question);
@@ -104,7 +105,7 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
         });
     }
 
-    const ragData = await ragService.ragPipeline(user_question, shaFingerprint);
+    const ragData = await ragService.ragPipeline(user_question, shaFingerprint, userId);
 
     if (!ragData) {
         if (stream) {
