@@ -168,20 +168,4 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     res.end();
 });
 
-const deleteDocument = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    const doc = await dbOps.findById<Document>(Tables.document, id);
-    if (!doc) {
-        return res
-            .status(404)
-            .json({ success: false, error: 'Document not found' });
-    }
-
-    await pineconeService.deleteByDocument('default', id);
-    await dbOps.deleteById(Tables.document, id);
-
-    return apiResponse(res, RESPONSE_STATUS.SUCCESS, { deleted: id });
-});
-
-export { uploadDocument, queryDocuments, deleteDocument };
+export { uploadDocument, queryDocuments };

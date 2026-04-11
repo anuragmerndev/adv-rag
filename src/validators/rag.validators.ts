@@ -10,9 +10,3 @@ export const queryValidator = z.object({
 });
 
 export type QueryInput = z.infer<typeof queryValidator>;
-
-export const deleteDocumentValidator = z.object({
-    id: z
-        .string({ required_error: 'id is required' })
-        .min(1, 'id cannot be empty'),
-});
