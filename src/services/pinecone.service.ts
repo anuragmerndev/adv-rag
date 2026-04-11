@@ -9,7 +9,6 @@ export interface PineconeSearchResult {
     content: string;
     documentName: string;
     similarity: number;
-    documentName: string;
 }
 
 class PineconeService {
@@ -99,7 +98,6 @@ class PineconeService {
             content: (m.metadata?.content as string) ?? '',
             documentName: (m.metadata?.documentName as string) ?? '',
             similarity: m.score ?? 0,
-            documentName: (m.metadata?.documentName as string) ?? '',
         }));
     }
 

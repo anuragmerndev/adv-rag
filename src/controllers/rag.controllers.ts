@@ -57,6 +57,69 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
     });
 });
 
+type ConvRow = { id: string; title: string | null };
+
+async function loadConversationContext(
+    conversationId: string,
+    userId: string,
+): Promise<
+    { conversation: ConvRow; chatHistory: ChatMessage[] } | 'not_found'
+> {
+    const conversation = await prisma.conversation.findFirst({
+        where: { id: conversationId, userId },
+    });
+
+    if (!conversation) return 'not_found';
+
+    const recentMessages = await prisma.message.findMany({
+        where: { conversationId },
+        orderBy: { createdAt: 'desc' },
+        take: 6,
+    });
+
+    return {
+        conversation,
+        chatHistory: recentMessages.reverse().map((m) => ({
+            role: m.role as ChatMessage['role'],
+            content: m.content,
+        })),
+    };
+}
+
+async function persistMessages(
+    conversationId: string | undefined,
+    conversation: ConvRow | null,
+    userQuestion: string,
+    answer: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    provenance: any[],
+) {
+    if (!conversationId || !conversation) return;
+
+    await prisma.message.createMany({
+        data: [
+            { conversationId, role: 'user', content: userQuestion },
+            {
+                conversationId,
+                role: 'assistant',
+                content: answer,
+                sources: provenance,
+            },
+        ],
+    });
+
+    // Bump updatedAt; auto-title from first user message if no title yet
+    await prisma.conversation.update({
+        where: { id: conversationId },
+        data: {
+            updatedAt: new Date(),
+            ...(conversation.title
+                ? {}
+                : { title: userQuestion.slice(0, 80).trim() }),
+        },
+    });
+}
+
 const SSE_HEADERS = {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
@@ -68,6 +131,29 @@ const setSseHeaders = (res: Response) => {
     Object.entries(SSE_HEADERS).forEach(([k, v]) => res.setHeader(k, v));
 };
 
+// prettier-ignore
+// eslint-disable-next-line @typescript-eslint/quotes
+const NO_CONTEXT_ANSWER = 'I don\'t have enough context to answer that question.';
+
+function sendNoContext(res: Response, stream: boolean): void {
+    if (stream) {
+        setSseHeaders(res);
+        res.write(
+            `data: ${JSON.stringify({ type: 'chunk', data: NO_CONTEXT_ANSWER })}\n\n`,
+        );
+        res.write(
+            `data: ${JSON.stringify({ type: 'done', provenance: [] })}\n\n`,
+        );
+        res.end();
+        return;
+    }
+    apiResponse(res, RESPONSE_STATUS.SUCCESS, {
+        answer: NO_CONTEXT_ANSWER,
+        cached: false,
+        provenance: [],
+    });
+}
+
 const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     const { user_question, stream, conversationId } = req.body;
     const userId: string = (req as any).userId;
@@ -78,30 +164,18 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
 
     // Load conversation + last 6 messages if conversationId provided
     let chatHistory: ChatMessage[] = [];
-    let conversation: { id: string; title: string | null } | null = null;
+    let conversation: ConvRow | null = null;
 
     if (conversationId) {
-        conversation = await prisma.conversation.findFirst({
-            where: { id: conversationId, userId },
-        });
-
-        if (!conversation) {
+        const ctx = await loadConversationContext(conversationId, userId);
+        if (ctx === 'not_found') {
             return res.status(RESPONSE_STATUS.NOT_FOUND).json({
                 success: false,
                 error: 'Conversation not found',
             });
         }
-
-        const recentMessages = await prisma.message.findMany({
-            where: { conversationId },
-            orderBy: { createdAt: 'desc' },
-            take: 6,
-        });
-
-        chatHistory = recentMessages.reverse().map((m) => ({
-            role: m.role as ChatMessage['role'],
-            content: m.content,
-        }));
+        conversation = ctx.conversation;
+        chatHistory = ctx.chatHistory;
     }
 
     // Skip response cache when inside a conversation — history makes responses unique
@@ -126,23 +200,8 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     );
 
     if (!ragData) {
-        if (stream) {
-            setSseHeaders(res);
-            res.write(
-                // eslint-disable-next-line quotes
-                `data: ${JSON.stringify({ type: 'chunk', data: "I don't have enough context to answer that question." })}\n\n`,
-            );
-            res.write(
-                `data: ${JSON.stringify({ type: 'done', provenance: [] })}\n\n`,
-            );
-            return res.end();
-        }
-        return apiResponse(res, RESPONSE_STATUS.SUCCESS, {
-            // eslint-disable-next-line quotes
-            answer: "I don't have enough context to answer that question.",
-            cached: false,
-            provenance: [],
-        });
+        sendNoContext(res, stream);
+        return;
     }
 
     const { policyResult, preFilterResults, provenance, cachedQueryEmbedding } =
@@ -152,33 +211,6 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
     const redactedContext = preFilterResults
         .map((r) => r.prefilter.redacted)
         .join('\n\n');
-
-    const persistMessages = async (answer: string) => {
-        if (!conversationId || !conversation) return;
-
-        await prisma.message.createMany({
-            data: [
-                { conversationId, role: 'user', content: user_question },
-                {
-                    conversationId,
-                    role: 'assistant',
-                    content: answer,
-                    sources: provenance,
-                },
-            ],
-        });
-
-        // Bump updatedAt; auto-title from first user message if no title yet
-        await prisma.conversation.update({
-            where: { id: conversationId },
-            data: {
-                updatedAt: new Date(),
-                ...(conversation.title
-                    ? {}
-                    : { title: user_question.slice(0, 80).trim() }),
-            },
-        });
-    };
 
     if (!stream) {
         const answer = await llmService.generateAnswer(
@@ -212,7 +244,13 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
             );
         }
 
-        await persistMessages(answer);
+        await persistMessages(
+            conversationId,
+            conversation,
+            user_question,
+            answer,
+            provenance,
+        );
         return apiResponse(res, RESPONSE_STATUS.SUCCESS, responsePayload);
     }
 
@@ -263,24 +301,14 @@ const queryDocuments = asyncHandler(async (req: Request, res: Response) => {
         );
     }
 
-    await persistMessages(fullAnswer);
+    await persistMessages(
+        conversationId,
+        conversation,
+        user_question,
+        fullAnswer,
+        provenance,
+    );
     res.end();
 });
 
-const deleteDocument = asyncHandler(async (req: Request, res: Response) => {
-    const { id } = req.params;
-
-    const doc = await dbOps.findById<Document>(Tables.document, id);
-    if (!doc) {
-        return res
-            .status(404)
-            .json({ success: false, error: 'Document not found' });
-    }
-
-    await pineconeService.deleteByDocument('default', id);
-    await dbOps.deleteById(Tables.document, id);
-
-    return apiResponse(res, RESPONSE_STATUS.SUCCESS, { deleted: id });
-});
-
-export { uploadDocument, queryDocuments, deleteDocument };
+export { uploadDocument, queryDocuments };
