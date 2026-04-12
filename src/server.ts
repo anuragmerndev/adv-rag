@@ -1,8 +1,6 @@
 import 'dotenv/config';
 
-import cluster from 'cluster';
 import http from 'http';
-import { cpus } from 'os';
 
 import { config } from '@config/env';
 import { logger } from '@logger/logger';
@@ -11,7 +9,7 @@ import { app } from './app';
 import { prisma } from './db/prisma';
 import { cacheService } from './services/cache.service';
 
-const { PORT, NODE_ENV } = config;
+const { PORT } = config;
 
 function startServer() {
     const server = http.createServer(app);
@@ -50,24 +48,24 @@ function startServer() {
     return server;
 }
 
-if (NODE_ENV === 'development') {
-    startServer();
-}
+// if (NODE_ENV === 'development') {
+startServer();
+// }
 
-if (NODE_ENV === 'production') {
-    const numCpus = cpus().length;
+// if (NODE_ENV === 'production') {
+//     const numCpus = cpus().length;
 
-    if (cluster.isPrimary) {
-        logger.info(`Master thread is running on ${process.pid}`);
-        for (let i = 0; i < numCpus; i++) {
-            cluster.fork();
-        }
+//     if (cluster.isPrimary) {
+//         logger.info(`Master thread is running on ${process.pid}`);
+//         for (let i = 0; i < numCpus; i++) {
+//             cluster.fork();
+//         }
 
-        cluster.on('exit', (worker) => {
-            logger.warn(`Worker ${worker.process.pid} died — restarting`);
-            cluster.fork();
-        });
-    } else {
-        startServer();
-    }
-}
+//         cluster.on('exit', (worker) => {
+//             logger.warn(`Worker ${worker.process.pid} died — restarting`);
+//             cluster.fork();
+//         });
+//     } else {
+//         startServer();
+//     }
+// }
