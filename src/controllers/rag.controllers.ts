@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import { Request, Response } from 'express';
 
 import { prisma } from '@db/prisma';
@@ -49,6 +51,12 @@ const uploadDocument = asyncHandler(async (req: Request, res: Response) => {
         })),
         embeddings,
     );
+
+    // Delete PDF from disk after indexing — no persistent file storage needed
+    if (file?.path && fs.existsSync(file.path)) {
+        fs.unlinkSync(file.path);
+    }
+
     return apiResponse(res, RESPONSE_STATUS.CREATED, {
         message: 'Document uploaded and indexed successfully',
         documentId: doc.id,

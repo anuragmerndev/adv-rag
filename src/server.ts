@@ -1,5 +1,6 @@
 import 'dotenv/config';
 
+import fs from 'fs';
 import http from 'http';
 
 import { config } from '@config/env';
@@ -10,6 +11,8 @@ import { prisma } from './db/prisma';
 import { cacheService } from './services/cache.service';
 
 const { PORT } = config;
+
+fs.mkdirSync('uploads', { recursive: true });
 
 function startServer() {
     const server = http.createServer(app);
