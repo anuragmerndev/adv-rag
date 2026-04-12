@@ -45,7 +45,7 @@
         "@types/node": "~18.16.9",
         "@typescript-eslint/eslint-plugin": "^7.18.0",
         "@typescript-eslint/parser": "^7.18.0",
-        "dotenv": "^17.4.1",
+        "dotenv": "^16.4.5",
         "eslint": "^8.57.1",
         "eslint-config-google": "^0.14.0",
         "eslint-config-prettier": "^9.1.0",
