@@ -30,7 +30,7 @@ app.use(clerkAuth);
 
 app.use(apiRequestLogger);
 
-app.get('/healthz', async (_req, res) => {
+app.get('/health', async (_req, res) => {
     const [postgres, redis, pinecone] = await Promise.all([
         prisma.$queryRaw`SELECT 1`.then(() => true).catch(() => false),
         cacheService.isHealthy().catch(() => false),
