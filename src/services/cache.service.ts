@@ -1,13 +1,17 @@
 import { Redis } from 'ioredis';
 
 import { config } from '@config/env';
+import { logger } from '@logger/logger';
 
 class CacheService {
     private static instance: CacheService;
     private redisClient: Redis;
 
     private constructor() {
-        this.redisClient = new Redis(config.REDIS_URL);
+        this.redisClient = new Redis(config.REDIS_URL, { lazyConnect: true });
+        this.redisClient.on('error', (err) =>
+            logger.error('Redis connection error', { err }),
+        );
     }
 
     public static getInstance(): CacheService {
