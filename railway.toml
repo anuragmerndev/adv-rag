@@ -2,8 +2,9 @@
 builder = "dockerfile"
 
 [deploy]
-startCommand = "npx prisma migrate deploy && npm run start:prod"
+preDeployCommand = "npx prisma migrate deploy"
+startCommand = "npm run start:prod"
 healthcheckPath = "/healthz"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
