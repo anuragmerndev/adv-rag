@@ -26,15 +26,30 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(clerkAuth);
 
-app.use(apiRequestLogger);
+const withTimeout = <T>(promise: Promise<T>, ms: number, fallback: T) =>
+    Promise.race([
+        promise,
+        new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+    ]);
 
 app.get('/health', async (_req, res) => {
     const [postgres, redis, pinecone] = await Promise.all([
-        prisma.$queryRaw`SELECT 1`.then(() => true).catch(() => false),
-        cacheService.isHealthy().catch(() => false),
-        pineconeService.isHealthy().catch(() => false),
+        withTimeout(
+            prisma.$queryRaw`SELECT 1`.then(() => true).catch(() => false),
+            5000,
+            false,
+        ),
+        withTimeout(
+            cacheService.isHealthy().catch(() => false),
+            5000,
+            false,
+        ),
+        withTimeout(
+            pineconeService.isHealthy().catch(() => false),
+            5000,
+            false,
+        ),
     ]);
 
     const allHealthy = postgres && redis && pinecone;
@@ -44,6 +59,9 @@ app.get('/health', async (_req, res) => {
         services: { postgres, redis, pinecone },
     });
 });
+
+app.use(clerkAuth);
+app.use(apiRequestLogger);
 
 app.use('/v1', rootRouter);
 
