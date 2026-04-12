@@ -4,13 +4,13 @@
     "main": "server.ts",
     "type": "module",
     "scripts": {
-        "build": "tsc && tsc-alias",
+        "build": "tsc && tsc-alias -f",
         "start:dev": "cross-env NODE_ENV=development tsx watch src/server.ts",
         "format": "prettier --write \"src/**/*.ts\"",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "prepare": "husky",
         "lint:commit": "commitlint --edit",
-        "start:prod": "cross-env NODE_ENV=production node dist/src/server.js",
+        "start:prod": "cross-env NODE_ENV=production node dist/server.js",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev"
     },
