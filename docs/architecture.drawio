@@ -1,0 +1,96 @@
+<mxGraphModel adaptiveColors="auto">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+
+    <mxCell id="title" value="AdvChat &amp;mdash; System Architecture" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;whiteSpace=wrap;fillColor=none;strokeColor=none;fontColor=#333333;" vertex="1" parent="1">
+      <mxGeometry x="250" y="10" width="500" height="40" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="col1_label" value="User-Facing" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#4A90D9;" vertex="1" parent="1">
+      <mxGeometry x="40" y="60" width="200" height="20" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="col2_label" value="Backend" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#5CB85C;" vertex="1" parent="1">
+      <mxGeometry x="370" y="60" width="200" height="20" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="col3_label" value="External Services" style="text;html=1;fontSize=11;fontStyle=1;align=center;fillColor=none;strokeColor=none;fontColor=#F0AD4E;" vertex="1" parent="1">
+      <mxGeometry x="700" y="60" width="200" height="20" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="user" value="&lt;b&gt;User&lt;/b&gt;&lt;br&gt;Browser" style="shape=mxgraph.basic.smiley;html=1;rounded=1;whiteSpace=wrap;fillColor=#4A90D9;fontColor=#FFFFFF;strokeColor=#3A7BC8;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="85" y="120" width="110" height="80" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="frontend" value="&lt;b&gt;Next.js 15&lt;/b&gt;&lt;br&gt;Frontend&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;(Vercel)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#4A90D9;fontColor=#FFFFFF;strokeColor=#3A7BC8;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="70" y="270" width="140" height="70" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="backend" value="&lt;b&gt;Express API&lt;/b&gt;&lt;br&gt;TypeScript&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;(Railway)&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5CB85C;fontColor=#FFFFFF;strokeColor=#4CAE4C;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="400" y="200" width="140" height="70" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="clerk" value="&lt;b&gt;Clerk&lt;/b&gt;&lt;br&gt;Auth (OAuth)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5CB85C;fontColor=#FFFFFF;strokeColor=#4CAE4C;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="400" y="340" width="140" height="60" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="openai" value="&lt;b&gt;OpenAI&lt;/b&gt;&lt;br&gt;LLM + Embeddings&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;GPT-4o-mini + text-embedding-3-small&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0AD4E;fontColor=#FFFFFF;strokeColor=#EC971F;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="700" y="100" width="200" height="70" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="pinecone" value="&lt;b&gt;Pinecone&lt;/b&gt;&lt;br&gt;Vector DB&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Namespace per user&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0AD4E;fontColor=#FFFFFF;strokeColor=#EC971F;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="700" y="200" width="200" height="70" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="postgres" value="&lt;b&gt;PostgreSQL&lt;/b&gt;&lt;br&gt;Data&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;Users, Conversations, Documents&lt;/font&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#F0AD4E;fontColor=#FFFFFF;strokeColor=#EC971F;fontSize=12;size=12;" vertex="1" parent="1">
+      <mxGeometry x="700" y="300" width="200" height="75" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="redis" value="&lt;b&gt;Redis&lt;/b&gt;&lt;br&gt;Cache&lt;br&gt;&lt;font style=&quot;font-size:10px&quot;&gt;emb: + resp: keys&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F0AD4E;fontColor=#FFFFFF;strokeColor=#EC971F;fontSize=12;arcSize=20;" vertex="1" parent="1">
+      <mxGeometry x="700" y="405" width="200" height="65" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_user_fe" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="user" target="frontend" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_fe_be" value="REST + SSE" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="frontend" target="backend" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_fe_clerk" value="Auth (OAuth)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="frontend" target="clerk" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_be_clerk" value="Webhook&lt;br&gt;(user sync)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;dashed=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" source="clerk" target="backend" parent="1">
+      <mxGeometry relative="1" as="geometry">
+        <Array as="points">
+          <mxPoint x="570" y="370"/>
+          <mxPoint x="570" y="290"/>
+        </Array>
+      </mxGeometry>
+    </mxCell>
+
+    <mxCell id="e_be_openai" value="Embeddings +&lt;br&gt;Chat Completions" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="backend" target="openai" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_be_pinecone" value="Upsert +&lt;br&gt;Similarity Search" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="backend" target="pinecone" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_be_postgres" value="Prisma ORM" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=1;exitY=0.75;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="backend" target="postgres" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="e_be_redis" value="Cache&lt;br&gt;(emb: + resp:)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#999999;fontColor=#666666;fontSize=10;exitX=0.75;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" source="backend" target="redis" parent="1">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+
+    <mxCell id="annotation" value="&lt;b&gt;Upload:&lt;/b&gt; PDF &amp;rarr; Chunk &amp;rarr; Embed &amp;rarr; Pinecone&amp;nbsp;&amp;nbsp;&amp;nbsp;|&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;b&gt;Query:&lt;/b&gt; Question &amp;rarr; Embed &amp;rarr; Search &amp;rarr; Redact &amp;rarr; LLM &amp;rarr; Stream" style="text;html=1;fontSize=11;align=center;verticalAlign=middle;whiteSpace=wrap;fillColor=#F5F5F5;strokeColor=#CCCCCC;rounded=1;arcSize=10;fontColor=#555555;" vertex="1" parent="1">
+      <mxGeometry x="170" y="500" width="650" height="35" as="geometry"/>
+    </mxCell>
+
+  </root>
+</mxGraphModel>
