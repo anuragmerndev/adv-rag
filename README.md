@@ -11,7 +11,7 @@
 
 RAG-powered document Q&A API with streaming responses, dual-layer caching, multi-tenant vector search, and pre-LLM content redaction.
 
-**[Live Demo](https://adv-rag-ui.vercel.app)** | **[Frontend Repo](https://github.com/anuragmerndev/adv-rag-ui)** | **[Case Study]()**
+**[Live Demo](https://adv-rag-ui.vercel.app)** | **[Frontend Repo](https://github.com/anuragmerndev/adv-rag-ui)** | **[Case Study](https://dev.to/anuragmerndev/i-built-a-production-rag-pipeline-heres-what-most-tutorials-skip-272n)**
 
 ---
 
